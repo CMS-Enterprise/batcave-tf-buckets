@@ -63,9 +63,6 @@ resource "aws_s3_bucket_policy" "bucket" {
           Bool = {
             "aws:SecureTransport" = "false"
           }
-          NumericLessThan = {
-            "s3:TlsVersion" : 1.2
-          }
         }
       },
     ]

@@ -14,6 +14,6 @@ variable "tags" {
 
 variable "s3_bucket_kms_key_id" {
   type        = string
-  default     = "aws/s3"
-  description = "KMS Key used to encrypt s3 buckets.  Defaults to aws/s3"
+  default     = null
+  description = "KMS Key used to encrypt s3 buckets.  Defaults to null, which uses default aws/s3 key"
 }

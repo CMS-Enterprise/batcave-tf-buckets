@@ -21,10 +21,10 @@ resource "aws_s3_bucket_public_access_block" "landing_zone_buckets" {
   for_each = aws_s3_bucket.landing_zone_buckets
   bucket   = each.value.id
 
-  block_public_acls      = true
-  block_public_policy    = true
-  ignore_public_acls     = true
- restrict_public_buckets = true
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
 }
 
 # data "aws_iam_policy_document" "bucket_policy" {
@@ -62,6 +62,21 @@ resource "aws_s3_bucket_policy" "bucket" {
         Condition = {
           Bool = {
             "aws:SecureTransport" = "false"
+          }
+        }
+      },
+      {
+        Sid       = "MinimumTlsVersion"
+        Effect    = "Deny"
+        Principal = "*"
+        Action    = "s3:*"
+        Resource = [
+          "${each.value.arn}/*",
+          "${each.value.arn}",
+        ]
+        Condition = {
+          NumericLessThan = {
+            "s3:TlsVersion" = "1.2"
           }
         }
       },

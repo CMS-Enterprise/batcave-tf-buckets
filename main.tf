@@ -109,7 +109,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "object_expire" {
       days = 7
     }
     noncurrent_version_expiration {
-      noncurrent_days = 0 
+      noncurrent_days = 1 
     }
   }
 }

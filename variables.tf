@@ -24,7 +24,7 @@ variable "sse_algorithm" {
   description = "The server-side encryption algorithm to use. Valid values are AES256 and aws:kms, defaults to aws:kms."
 }
 
-variable "environmnent" {
+variable "env" {
   type        = string
   default     = ""
   description = "Environment variable which will be used to apply s3 lifecycle on bojects"

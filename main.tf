@@ -104,7 +104,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "object_expire" {
 
   rule {
     id     = "expire_rule"
-    status = var.env == "dev" ? "Enabled" : "Disabled"
+    status = var.environment == "dev" ? "Enabled" : "Disabled"
     expiration {
       days = 7
     }

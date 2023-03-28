@@ -30,7 +30,7 @@ variable "environment" {
   description = "Environment variable which will be used to apply s3 lifecycle on bojects"
 }
 
-variable "days_to_expire" {
+variable "lifecycle_expiration_days" {
   type        = string
   default     = "7"
   description = "Number of days for object lifecycle to expire the objects in dev env"

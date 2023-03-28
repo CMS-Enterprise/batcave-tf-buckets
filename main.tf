@@ -104,7 +104,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "object_expire" {
 
   rule {
     id     = "delete-old-objects"
-    status = var.environment == "dev" ? "Enabled" : "Disabled"
+    status = "Enabled"
     expiration {
       days = var.days_to_expire
     }

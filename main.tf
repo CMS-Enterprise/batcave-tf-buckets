@@ -97,23 +97,6 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "bucket" {
 }
 
 # Lifecycle configuration for the dev buckets to remove all objects older than 7 days.
-# resource "aws_s3_bucket_lifecycle_configuration" "object_expire" {
-#   for_each = var.environment == "dev" ? aws_s3_bucket.landing_zone_buckets : []
-
-#   bucket = each.value.id
-
-#   rule {
-#     id     = "delete-old-objects"
-#     status = "Enabled"
-#     expiration {
-#       days = var.days_to_expire
-#     }
-#     noncurrent_version_expiration {
-#       noncurrent_days = 1 
-#     }
-#   }
-# }
-
 resource "aws_s3_bucket_lifecycle_configuration" "lifecycle_expiration_days" {
   for_each = var.lifecycle_expiration_days > 0 ? aws_s3_bucket.landing_zone_buckets : []
 

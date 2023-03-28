@@ -106,7 +106,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "object_expire" {
     id     = "delete-old-objects"
     status = var.environment == "dev" ? "Enabled" : "Disabled"
     expiration {
-      days = 7
+      days = var.days_to_expire
     }
     noncurrent_version_expiration {
       noncurrent_days = 1 

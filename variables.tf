@@ -23,3 +23,9 @@ variable "sse_algorithm" {
   default     = "aws:kms"
   description = "The server-side encryption algorithm to use. Valid values are AES256 and aws:kms, defaults to aws:kms."
 }
+
+variable "lifecycle_expiration_days" {
+  type        = string
+  default     = "0"
+  description = "Number of days for object lifecycle to expire the objects in dev env.  Defaults to 0, which disables the rule"
+}

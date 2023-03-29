@@ -25,7 +25,13 @@ variable "sse_algorithm" {
 }
 
 variable "lifecycle_expiration_days" {
+<<<<<<< HEAD
   type        = number
   default     = "7"
   description = "Number of days for object lifecycle to expire the objects in dev env"
+=======
+  type        = string
+  default     = "0"
+  description = "Number of days for object lifecycle to expire the objects in dev env.  Defaults to 0, which disables the rule"
+>>>>>>> 42b2be8e7e8b9a5238052ca6c9dad8ffd020779e
 }

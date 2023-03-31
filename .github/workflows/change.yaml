@@ -1,0 +1,31 @@
+name: 'Terraform Format-Validate'
+
+on:
+  push:
+    branches: [test-workflow]
+  
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+  
+permissions:
+  contents: read
+
+jobs:
+  terraform:
+    runs-on: [self-hosted, test]
+  
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Terraform fmt
+      id: fmt
+      run: terraform fmt -check -diff
+      continue-on-error: true
+
+    - name: Terraform Init
+      id: init
+      run: terraform init
+
+    - name: Terraform Validate
+      id: validate
+      run: terraform validate

@@ -11,10 +11,13 @@ locals {
   #buckets = { for bucket in aws_s3_bucket.landing_zone_buckets : bucket.id => bucket }
 }
 
-resource "aws_s3_bucket_acl" "landing_zone_buckets" {
+resource "aws_s3_bucket_ownership_controls" "landing_zone_buckets" {
   for_each = aws_s3_bucket.landing_zone_buckets
   bucket   = each.value.id
-  acl      = "private"
+ 
+  rule {
+    object_ownership = "BucketOwnerEnforced"
+  }
 }
 
 resource "aws_s3_bucket_public_access_block" "landing_zone_buckets" {

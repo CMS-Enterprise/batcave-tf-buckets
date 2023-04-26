@@ -9,6 +9,25 @@ resource "aws_s3_bucket" "landing_zone_buckets" {
 locals {
   buckets = aws_s3_bucket.landing_zone_buckets
   #buckets = { for bucket in aws_s3_bucket.landing_zone_buckets : bucket.id => bucket }
+
+  required_statements = [
+    {
+      Sid = "EnforceTls"
+      Condition = {
+        Bool = {
+          "aws:SecureTransport" = "false"
+        }
+      }
+    },
+    {
+      Sid = "MinimumTlsVersion"
+      Condition = {
+        NumericLessThan = {
+          "s3:TlsVersion" = "1.2"
+        }
+      }
+    }
+  ]
 }
 
 resource "aws_s3_bucket_ownership_controls" "landing_zone_buckets" {
@@ -52,37 +71,19 @@ resource "aws_s3_bucket_policy" "bucket" {
     Version = "2012-10-17"
     Id      = "policy"
     Statement = [
-      {
-        Sid       = "EnforceTls"
-        Effect    = "Deny"
-        Principal = "*"
-        Action    = "s3:*"
+      for statement in concat(local.required_statements, var.additional_statements) : {
+        Sid       = try(statement.Sid, "statement${md5(jsonencode(statement))}")
+        Effect    = try(statement.Effect, "Deny")
+        Principal = try(statement.Principal, "*")
+        Action    = try(statement.Action, "s3:*")
         Resource = [
           "${each.value.arn}/*",
           "${each.value.arn}",
         ]
-        Condition = {
-          Bool = {
-            "aws:SecureTransport" = "false"
-          }
-        }
-      },
-      {
-        Sid       = "MinimumTlsVersion"
-        Effect    = "Deny"
-        Principal = "*"
-        Action    = "s3:*"
-        Resource = [
-          "${each.value.arn}/*",
-          "${each.value.arn}",
-        ]
-        Condition = {
-          NumericLessThan = {
-            "s3:TlsVersion" = "1.2"
-          }
-        }
-      },
+        Condition = try(statement.Condition, null)
+      }
     ]
+
   })
 }
 
@@ -109,12 +110,12 @@ resource "aws_s3_bucket_lifecycle_configuration" "lifecycle_expiration_days" {
 
     content {
       id     = "delete-old-objects"
-      status =  "Enabled"
+      status = "Enabled"
       expiration {
-       days = var.lifecycle_expiration_days
+        days = var.lifecycle_expiration_days
       }
       noncurrent_version_expiration {
-       noncurrent_days = 1 
+        noncurrent_days = 1
       }
     }
   }

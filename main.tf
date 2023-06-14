@@ -29,21 +29,14 @@ resource "aws_s3_bucket_public_access_block" "landing_zone_buckets" {
   restrict_public_buckets = true
 }
 
-# data "aws_iam_policy_document" "bucket_policy" {
-#   statement {
-#     effect = "Allow"
-#     actions = [
-#       "s3:ListBucket",
-#       "s3:PutObject",
-#       "s3:GetObject",
-#       "s3:DeleteObject",
-#       "s3:PutObjectAcl"
-#     ]
-#     resources = [
-#       "arn:aws:s3:::git-lfs",
-#     ]
-#   }
-# }
+resource "aws_s3_bucket_versioning" "buckert_versioning" {
+  for_each = var.versioning_enabled ? aws_s3_bucket.landing_zone_buckets : {}
+  bucket   = each.value.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
 resource "aws_s3_bucket_policy" "bucket" {
   for_each = aws_s3_bucket.landing_zone_buckets
   bucket   = each.value.id
@@ -51,7 +44,7 @@ resource "aws_s3_bucket_policy" "bucket" {
   policy = jsonencode({
     Version = "2012-10-17"
     Id      = "policy"
-    Statement = [
+    Statement = concat([
       {
         Sid       = "EnforceTls"
         Effect    = "Deny"
@@ -82,7 +75,9 @@ resource "aws_s3_bucket_policy" "bucket" {
           }
         }
       },
-    ]
+      ],
+      "${var.extra_bucket_policies}",
+      )
   })
 }
 

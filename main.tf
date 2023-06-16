@@ -29,7 +29,7 @@ resource "aws_s3_bucket_public_access_block" "landing_zone_buckets" {
   restrict_public_buckets = true
 }
 
-resource "aws_s3_bucket_versioning" "buckert_versioning" {
+resource "aws_s3_bucket_versioning" "bucket_versioning" {
   for_each = var.versioning_enabled ? aws_s3_bucket.landing_zone_buckets : {}
   bucket   = each.value.id
   versioning_configuration {

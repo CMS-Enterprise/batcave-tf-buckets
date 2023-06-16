@@ -3,5 +3,5 @@ output "s3_buckets" {
 }
 
 output "bucket_verisioning" {
-  value = aws_s3_bucket_versioning.buckert_versioning
+  value = aws_s3_bucket_versioning.bucket_versioning
 }

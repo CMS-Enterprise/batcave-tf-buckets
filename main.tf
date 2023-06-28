@@ -86,7 +86,7 @@ resource "aws_s3_bucket_policy" "bucket" {
         }
       },
       ],
-      var.replication_permission_iam_role == null ? []: [
+      var.replication_permission_iam_role == null ? [] : [
         {
           Sid    = "ReplicaPermissionsFiles"
           Effect = "Allow"
@@ -110,7 +110,7 @@ resource "aws_s3_bucket_policy" "bucket" {
           ]
         }
       ]
-      )
+    )
   })
 }
 
@@ -137,12 +137,12 @@ resource "aws_s3_bucket_lifecycle_configuration" "lifecycle_expiration_days" {
 
     content {
       id     = "delete-old-objects"
-      status =  "Enabled"
+      status = "Enabled"
       expiration {
-       days = var.lifecycle_expiration_days
+        days = var.lifecycle_expiration_days
       }
       noncurrent_version_expiration {
-       noncurrent_days = 1 
+        noncurrent_days = 1
       }
     }
   }

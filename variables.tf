@@ -31,12 +31,12 @@ variable "lifecycle_expiration_days" {
 }
 
 variable "versioning_enabled" {
-  type = bool
+  type    = bool
   default = false
 }
 
 variable "replication_permission_iam_role" {
-  type = string
+  type     = string
   nullable = true
-  default = null
+  default  = null
 }

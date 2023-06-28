@@ -1,4 +1,15 @@
 # S3 buckets for landing zone
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 4.61.0"
+    }
+  }
+  required_version = ">= 1.2"
+
+}
+
 resource "aws_s3_bucket" "landing_zone_buckets" {
   for_each      = toset(var.s3_bucket_names)
   bucket        = each.key
@@ -8,7 +19,6 @@ resource "aws_s3_bucket" "landing_zone_buckets" {
 
 locals {
   buckets = aws_s3_bucket.landing_zone_buckets
-  #buckets = { for bucket in aws_s3_bucket.landing_zone_buckets : bucket.id => bucket }
 }
 
 resource "aws_s3_bucket_ownership_controls" "landing_zone_buckets" {
@@ -76,7 +86,30 @@ resource "aws_s3_bucket_policy" "bucket" {
         }
       },
       ],
-      "${var.extra_bucket_policies}",
+      var.replication_permission_iam_role == null ? []: [
+        {
+          Sid    = "ReplicaPermissionsFiles"
+          Effect = "Allow"
+          Principal = {
+            "AWS" : "${var.replication_permission_iam_role}"
+          }
+          Action = ["s3:ReplicateObject", "s3:ReplicateDelete", "s3:ReplicateTags"]
+          Resource = [
+            "${each.value.arn}/*",
+          ]
+        },
+        {
+          Sid    = "ReplicaPermissions"
+          Effect = "Allow"
+          Principal = {
+            "AWS" : "${var.replication_permission_iam_role}"
+          }
+          Action = ["s3:GetReplicationConfiguration", "s3:ListBucket"]
+          Resource = [
+            "${each.value.arn}",
+          ]
+        }
+      ]
       )
   })
 }

@@ -35,8 +35,8 @@ variable "versioning_enabled" {
   default = false
 }
 
-variable "extra_bucket_policies" {
-  type = list(any)
-  default = []
-  description = "list of bucket policies you'd like to apply. This will go into a json"
+variable "replication_permission_iam_role" {
+  type = string
+  nullable = true
+  default = null
 }

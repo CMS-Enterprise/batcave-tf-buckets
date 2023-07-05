@@ -1,4 +1,15 @@
 # S3 buckets for landing zone
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 4.61.0"
+    }
+  }
+  required_version = ">= 1.2"
+
+}
+
 resource "aws_s3_bucket" "landing_zone_buckets" {
   for_each      = toset(var.s3_bucket_names)
   bucket        = each.key
@@ -8,7 +19,6 @@ resource "aws_s3_bucket" "landing_zone_buckets" {
 
 locals {
   buckets = aws_s3_bucket.landing_zone_buckets
-  #buckets = { for bucket in aws_s3_bucket.landing_zone_buckets : bucket.id => bucket }
 }
 
 resource "aws_s3_bucket_ownership_controls" "landing_zone_buckets" {
@@ -29,21 +39,14 @@ resource "aws_s3_bucket_public_access_block" "landing_zone_buckets" {
   restrict_public_buckets = true
 }
 
-# data "aws_iam_policy_document" "bucket_policy" {
-#   statement {
-#     effect = "Allow"
-#     actions = [
-#       "s3:ListBucket",
-#       "s3:PutObject",
-#       "s3:GetObject",
-#       "s3:DeleteObject",
-#       "s3:PutObjectAcl"
-#     ]
-#     resources = [
-#       "arn:aws:s3:::git-lfs",
-#     ]
-#   }
-# }
+resource "aws_s3_bucket_versioning" "bucket_versioning" {
+  for_each = var.versioning_enabled ? aws_s3_bucket.landing_zone_buckets : {}
+  bucket   = each.value.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
 resource "aws_s3_bucket_policy" "bucket" {
   for_each = aws_s3_bucket.landing_zone_buckets
   bucket   = each.value.id
@@ -51,7 +54,7 @@ resource "aws_s3_bucket_policy" "bucket" {
   policy = jsonencode({
     Version = "2012-10-17"
     Id      = "policy"
-    Statement = [
+    Statement = concat([
       {
         Sid       = "EnforceTls"
         Effect    = "Deny"
@@ -82,7 +85,32 @@ resource "aws_s3_bucket_policy" "bucket" {
           }
         }
       },
-    ]
+      ],
+      var.replication_permission_iam_role == null ? [] : [
+        {
+          Sid    = "ReplicaPermissionsFiles"
+          Effect = "Allow"
+          Principal = {
+            "AWS" : "${var.replication_permission_iam_role}"
+          }
+          Action = ["s3:ReplicateObject", "s3:ReplicateDelete", "s3:ReplicateTags"]
+          Resource = [
+            "${each.value.arn}/*",
+          ]
+        },
+        {
+          Sid    = "ReplicaPermissions"
+          Effect = "Allow"
+          Principal = {
+            "AWS" : "${var.replication_permission_iam_role}"
+          }
+          Action = ["s3:GetReplicationConfiguration", "s3:ListBucket"]
+          Resource = [
+            "${each.value.arn}",
+          ]
+        }
+      ]
+    )
   })
 }
 
@@ -109,12 +137,12 @@ resource "aws_s3_bucket_lifecycle_configuration" "lifecycle_expiration_days" {
 
     content {
       id     = "delete-old-objects"
-      status =  "Enabled"
+      status = "Enabled"
       expiration {
-       days = var.lifecycle_expiration_days
+        days = var.lifecycle_expiration_days
       }
       noncurrent_version_expiration {
-       noncurrent_days = 1 
+        noncurrent_days = 1
       }
     }
   }

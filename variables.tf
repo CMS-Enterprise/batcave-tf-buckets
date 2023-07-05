@@ -29,3 +29,13 @@ variable "lifecycle_expiration_days" {
   default     = "0"
   description = "Number of days for object lifecycle to expire the objects in dev env.  Defaults to 0, which disables the rule"
 }
+
+variable "versioning_enabled" {
+  type    = bool
+  default = false
+}
+
+variable "replication_permission_iam_role" {
+  type     = string
+  default  = null
+}

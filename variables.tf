@@ -37,6 +37,5 @@ variable "versioning_enabled" {
 
 variable "replication_permission_iam_role" {
   type     = string
-  nullable = true
   default  = null
 }

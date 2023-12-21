@@ -4,7 +4,8 @@ on:
     branches: [main]
 
 jobs:
-  docs:
+  tf_docs:
+    name: Render Terraform Docs
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -18,7 +19,8 @@ jobs:
         output-file: README.md
         output-method: inject
         git-push: "true"
-  main:
+  pre_commit:
+    name: Run pre-commit and commit any autocorrections
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3

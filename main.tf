@@ -18,7 +18,6 @@ resource "aws_s3_bucket" "landing_zone_buckets" {
 }
 
 locals {
-  buckets = aws_s3_bucket.landing_zone_buckets
 }
 
 resource "aws_s3_bucket_ownership_controls" "landing_zone_buckets" {
@@ -70,7 +69,7 @@ resource "aws_s3_bucket_policy" "bucket" {
         Action    = "s3:*"
         Resource = [
           "${aws_s3_bucket.landing_zone_buckets[each.value].arn}/*",
-          "${aws_s3_bucket.landing_zone_buckets[each.value].arn}",
+          aws_s3_bucket.landing_zone_buckets[each.value].arn,
         ]
         Condition = {
           Bool = {
@@ -85,7 +84,7 @@ resource "aws_s3_bucket_policy" "bucket" {
         Action    = "s3:*"
         Resource = [
           "${aws_s3_bucket.landing_zone_buckets[each.value].arn}/*",
-          "${aws_s3_bucket.landing_zone_buckets[each.value].arn}",
+          aws_s3_bucket.landing_zone_buckets[each.value].arn,
         ]
         Condition = {
           NumericLessThan = {
@@ -99,7 +98,7 @@ resource "aws_s3_bucket_policy" "bucket" {
           Sid    = "ReplicaPermissionsFiles"
           Effect = "Allow"
           Principal = {
-            "AWS" : "${var.replication_permission_iam_role}"
+            "AWS" : var.replication_permission_iam_role
           }
           Action = ["s3:ReplicateObject", "s3:ReplicateDelete", "s3:ReplicateTags"]
           Resource = [
@@ -110,11 +109,11 @@ resource "aws_s3_bucket_policy" "bucket" {
           Sid    = "ReplicaPermissions"
           Effect = "Allow"
           Principal = {
-            "AWS" : "${var.replication_permission_iam_role}"
+            "AWS" : var.replication_permission_iam_role
           }
           Action = ["s3:GetReplicationConfiguration", "s3:ListBucket"]
           Resource = [
-            "${aws_s3_bucket.landing_zone_buckets[each.value].arn}",
+            aws_s3_bucket.landing_zone_buckets[each.value].arn,
           ]
         }
       ]

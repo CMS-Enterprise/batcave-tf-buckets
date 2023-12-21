@@ -45,7 +45,7 @@ jobs:
         # https://github.com/terraform-linters/tflint/blob/master/docs/user-guide/plugins.md#avoiding-rate-limiting
         GITHUB_TOKEN: ${{ github.token }}
     - name: TFLint - Show version
-      run: tflint --version
+      run: tflint --version && tflint --help
 
     - uses: actions/setup-python@v4
       with:

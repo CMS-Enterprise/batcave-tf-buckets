@@ -35,18 +35,18 @@ jobs:
         # To avoid rate-limiting
         token: ${{ secrets.GITHUB_TOKEN }}
     - uses: terraform-linters/setup-tflint@v3
-      name: Setup TFLint
+      name: TFLint - Setup
       with:
         tflint_version: latest
 
-    - name: Show version
-      run: tflint --version
-
-    - name: Init TFLint
+    - name: TFLint - Init
       run: tflint --init
       env:
         # https://github.com/terraform-linters/tflint/blob/master/docs/user-guide/plugins.md#avoiding-rate-limiting
         GITHUB_TOKEN: ${{ github.token }}
+    - name: TFLint - Show version
+      run: tflint --version
+
     - uses: actions/setup-python@v4
       with:
         python-version: 3.x

@@ -23,7 +23,7 @@ locals {
 
 resource "aws_s3_bucket_ownership_controls" "landing_zone_buckets" {
   ## Iterate over the list from var's to avoid some chicken/egg problems
-  for_each =               toset(var.s3_bucket_names)
+  for_each = toset(var.s3_bucket_names)
   ## Refer to the id from the bucket resource to retain the dependency
   bucket = aws_s3_bucket.landing_zone_buckets[each.value].id
   rule {

@@ -4,25 +4,8 @@ on:
     branches: [main]
 
 jobs:
-  tf_docs:
-    name: Render Terraform Docs
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-      with:
-        ref: ${{ github.event.pull_request.head.ref }}
-
-    - name: Render terraform docs inside the README.md and push changes back to PR branch
-      uses: terraform-docs/gh-actions@v1.0.0
-      with:
-        working-dir: .
-        output-file: README.md
-        output-method: inject
-        git-push: "true"
   pre_commit:
     name: Run pre-commit and commit any autocorrections
-    # Depends on tf_docs to avoid conflicts when changes are being written by both tf_docs and pre-commit
-    needs: tf_docs
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -51,6 +34,14 @@ jobs:
     - uses: actions/setup-python@v4
       with:
         python-version: 3.x
+    - name: Terraform Docs - Install
+      run: |
+        curl -sSLo ./terraform-docs.tar.gz https://terraform-docs.io/dl/v0.17.0/terraform-docs-v0.17.0-$(uname)-amd64.tar.gz
+        tar -xzf terraform-docs.tar.gz -- terraform-docs
+        chmod +x terraform-docs
+        echo $PATH
+        mv terraform-docs /usr/local/bin/terraform-docs
+        terraform-docs --version
     - uses: pre-commit/action@v3.0.0
     - uses: pre-commit-ci/lite-action@v1.0.1
       if: always()

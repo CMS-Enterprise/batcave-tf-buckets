@@ -21,6 +21,8 @@ jobs:
         git-push: "true"
   pre_commit:
     name: Run pre-commit and commit any autocorrections
+    # Depends on tf_docs to avoid conflicts when changes are being written by both tf_docs and pre-commit
+    needs: tf_docs
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -45,8 +47,7 @@ jobs:
         # https://github.com/terraform-linters/tflint/blob/master/docs/user-guide/plugins.md#avoiding-rate-limiting
         GITHUB_TOKEN: ${{ github.token }}
     - name: TFLint - Show version
-      run: tflint --version && tflint --help
-
+      run: tflint --version
     - uses: actions/setup-python@v4
       with:
         python-version: 3.x

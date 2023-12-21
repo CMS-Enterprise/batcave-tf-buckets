@@ -14,7 +14,6 @@ repos:
     hooks:
       - id: terraform_fmt     #  args: ["--enable require-variable-braces,deprecate-which"]
       - id: terraform_tflint
-        exclude: .*
       - id: terragrunt_fmt
       #- id: terraform_docs
 ci:

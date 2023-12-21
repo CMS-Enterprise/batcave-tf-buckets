@@ -8,7 +8,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - uses: hashicorp/setup-terraform@v3
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
       with:
         terraform_version: 1.6.6
     - name: Setup Terragrunt
@@ -17,6 +18,10 @@ jobs:
         terragrunt_version: 0.54.8
         # To avoid rate-limiting
         token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Setup terraform-docs
+      uses: terraform-docs/gh-actions@v1.0.0
+      with:
+        output_method: print
     - uses: actions/setup-python@v4
       with:
         python-version: 3.x

@@ -5,6 +5,7 @@ variable "s3_bucket_names" {
 
 variable "force_destroy" {
   default = true
+  type    = bool
 }
 
 variable "tags" {

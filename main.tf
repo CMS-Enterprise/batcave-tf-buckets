@@ -1,4 +1,3 @@
-# S3 buckets for landing zone
 terraform {
   required_providers {
     aws = {
@@ -7,7 +6,6 @@ terraform {
     }
   }
   required_version = ">= 1.2"
-
 }
 
 resource "aws_s3_bucket" "landing_zone_buckets" {
@@ -18,14 +16,13 @@ resource "aws_s3_bucket" "landing_zone_buckets" {
 }
 
 locals {
-  buckets = aws_s3_bucket.landing_zone_buckets
 }
 
 resource "aws_s3_bucket_ownership_controls" "landing_zone_buckets" {
   ## Iterate over the list from var's to avoid some chicken/egg problems
-  for_each      = toset(var.s3_bucket_names)
+  for_each = toset(var.s3_bucket_names)
   ## Refer to the id from the bucket resource to retain the dependency
-  bucket   = aws_s3_bucket.landing_zone_buckets[each.value].id
+  bucket = aws_s3_bucket.landing_zone_buckets[each.value].id
   rule {
     object_ownership = "BucketOwnerEnforced"
   }
@@ -33,9 +30,9 @@ resource "aws_s3_bucket_ownership_controls" "landing_zone_buckets" {
 
 resource "aws_s3_bucket_public_access_block" "landing_zone_buckets" {
   ## Iterate over the list from var's to avoid some chicken/egg problems
-  for_each      = toset(var.s3_bucket_names)
+  for_each = toset(var.s3_bucket_names)
   ## Refer to the id from the bucket resource to retain the dependency
-  bucket   = aws_s3_bucket.landing_zone_buckets[each.value].id
+  bucket = aws_s3_bucket.landing_zone_buckets[each.value].id
 
   block_public_acls       = true
   block_public_policy     = true
@@ -47,7 +44,7 @@ resource "aws_s3_bucket_versioning" "bucket_versioning" {
   ## Iterate over the list from var's to avoid some chicken/egg problems
   for_each = var.versioning_enabled ? toset(var.s3_bucket_names) : []
   ## Refer to the id from the bucket resource to retain the dependency
-  bucket   = aws_s3_bucket.landing_zone_buckets[each.value].id
+  bucket = aws_s3_bucket.landing_zone_buckets[each.value].id
   versioning_configuration {
     status = "Enabled"
   }
@@ -57,7 +54,7 @@ resource "aws_s3_bucket_policy" "bucket" {
   ## Iterate over the list from var's to avoid some chicken/egg problems
   for_each = toset(var.s3_bucket_names)
   ## Refer to the id from the bucket resource to retain the dependency
-  bucket   = aws_s3_bucket.landing_zone_buckets[each.value].id
+  bucket = aws_s3_bucket.landing_zone_buckets[each.value].id
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -70,7 +67,7 @@ resource "aws_s3_bucket_policy" "bucket" {
         Action    = "s3:*"
         Resource = [
           "${aws_s3_bucket.landing_zone_buckets[each.value].arn}/*",
-          "${aws_s3_bucket.landing_zone_buckets[each.value].arn}",
+          aws_s3_bucket.landing_zone_buckets[each.value].arn,
         ]
         Condition = {
           Bool = {
@@ -85,7 +82,7 @@ resource "aws_s3_bucket_policy" "bucket" {
         Action    = "s3:*"
         Resource = [
           "${aws_s3_bucket.landing_zone_buckets[each.value].arn}/*",
-          "${aws_s3_bucket.landing_zone_buckets[each.value].arn}",
+          aws_s3_bucket.landing_zone_buckets[each.value].arn,
         ]
         Condition = {
           NumericLessThan = {
@@ -99,7 +96,7 @@ resource "aws_s3_bucket_policy" "bucket" {
           Sid    = "ReplicaPermissionsFiles"
           Effect = "Allow"
           Principal = {
-            "AWS" : "${var.replication_permission_iam_role}"
+            "AWS" : var.replication_permission_iam_role
           }
           Action = ["s3:ReplicateObject", "s3:ReplicateDelete", "s3:ReplicateTags"]
           Resource = [
@@ -110,11 +107,11 @@ resource "aws_s3_bucket_policy" "bucket" {
           Sid    = "ReplicaPermissions"
           Effect = "Allow"
           Principal = {
-            "AWS" : "${var.replication_permission_iam_role}"
+            "AWS" : var.replication_permission_iam_role
           }
           Action = ["s3:GetReplicationConfiguration", "s3:ListBucket"]
           Resource = [
-            "${aws_s3_bucket.landing_zone_buckets[each.value].arn}",
+            aws_s3_bucket.landing_zone_buckets[each.value].arn,
           ]
         }
       ]
@@ -126,7 +123,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "bucket" {
   ## Iterate over the list from var's to avoid some chicken/egg problems
   for_each = toset(var.s3_bucket_names)
   ## Refer to the id from the bucket resource to retain the dependency
-  bucket   = aws_s3_bucket.landing_zone_buckets[each.value].id
+  bucket = aws_s3_bucket.landing_zone_buckets[each.value].id
 
   rule {
     apply_server_side_encryption_by_default {
@@ -141,7 +138,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "lifecycle_expiration_days" {
   ## Iterate over the list from var's to avoid some chicken/egg problems
   for_each = var.lifecycle_expiration_days > 0 ? toset(var.s3_bucket_names) : []
   ## Refer to the id from the bucket resource to retain the dependency
-  bucket   = aws_s3_bucket.landing_zone_buckets[each.value].id
+  bucket = aws_s3_bucket.landing_zone_buckets[each.value].id
 
   dynamic "rule" {
     for_each = var.lifecycle_expiration_days > 0 ? [1] : []

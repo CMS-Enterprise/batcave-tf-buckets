@@ -5,6 +5,7 @@ variable "s3_bucket_names" {
 
 variable "force_destroy" {
   default = true
+  type    = bool
 }
 
 variable "tags" {
@@ -36,6 +37,6 @@ variable "versioning_enabled" {
 }
 
 variable "replication_permission_iam_role" {
-  type     = string
-  default  = null
+  type    = string
+  default = null
 }

@@ -1,4 +1,3 @@
-# S3 buckets for landing zone
 terraform {
   required_providers {
     aws = {
@@ -7,7 +6,6 @@ terraform {
     }
   }
   required_version = ">= 1.2"
-
 }
 
 resource "aws_s3_bucket" "landing_zone_buckets" {

@@ -136,7 +136,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "bucket" {
 # Lifecycle configuration for the dev buckets to remove all objects older than var.lifecycle_expiration_days.
 resource "aws_s3_bucket_lifecycle_configuration" "lifecycle_expiration_days" {
   ## Iterate over the list from var's to avoid some chicken/egg problems
-  for_each = var.lifecycle_expiration_days > 0 ? toset(var.s3_bucket_names) : []
+  for_each = var.lifecycle_expiration_days || var.version_lifecycle_expiration_days > 0 ? toset(var.s3_bucket_names) : []
   ## Refer to the id from the bucket resource to retain the dependency
   bucket = aws_s3_bucket.landing_zone_buckets[each.value].id
 
@@ -151,6 +151,21 @@ resource "aws_s3_bucket_lifecycle_configuration" "lifecycle_expiration_days" {
       }
       noncurrent_version_expiration {
         noncurrent_days = 1
+      }
+    }
+  }
+
+  dynamic "version_rule" {
+    for_each = var.version_lifecycle_expiration_days > 0 ? [1] : []
+
+    content {
+      id     = "delete-old-versions"
+      status = "Enabled"
+      expiration {
+        days = var.version_lifecycle_expiration_days
+      }
+      noncurrent_version_expiration {
+        noncurrent_days = 7
       }
     }
   }

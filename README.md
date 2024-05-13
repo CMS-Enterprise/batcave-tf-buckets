@@ -41,6 +41,7 @@ No modules.
 | <a name="input_s3_bucket_names"></a> [s3\_bucket\_names](#input\_s3\_bucket\_names) | n/a | `list(string)` | `[]` | no |
 | <a name="input_sse_algorithm"></a> [sse\_algorithm](#input\_sse\_algorithm) | The server-side encryption algorithm to use. Valid values are AES256 and aws:kms, defaults to aws:kms. | `string` | `"aws:kms"` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | n/a | `map(any)` | `{}` | no |
+| <a name="input_version_lifecycle_expiration_days"></a> [version\_lifecycle\_expiration\_days](#input\_version\_lifecycle\_expiration\_days) | Number of days for a bucket version's lifecycle to expire.  Defaults to 0, which disables the rule | `number` | `"0"` | no |
 | <a name="input_versioning_enabled"></a> [versioning\_enabled](#input\_versioning\_enabled) | n/a | `bool` | `false` | no |
 
 ## Outputs
